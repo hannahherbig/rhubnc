@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+#
+# rhubnc: rhuidean-based IRC bouncer
+# bin/rhubnc: instantiates a new +Bouncer+ object
+#
+# Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+#
+# encoding: utf-8
+
+# Prepare the environment
+$: << File.join(Dir.getwd, 'lib')
+$0 = 'rhubnc'
+
+# Import required application modules
+require 'rhubnc'
+
+# Start a new instance of the application
+begin
+    Bouncer.new
+rescue Exception => err
+    # XXX - eventually put logging and such here.
+    raise
+end
+
+exit 0
+
