@@ -1,9 +1,13 @@
 users:
-    someone:
-        networks:
-            - name: malkier
-              servers: irc.malkier.net:6667
-              channels: "#malkier", "#lobby"
-            - name: freenode
-              servers: chat.freenode.net:6667
-              channels: "#freenode"
+- name: example
+  password: password
+  networks:
+  - name: malkier
+    servers: irc.malkier.net:6667
+    channels:
+      - "#malkier"
+      - "#lobby"
+  - name: freenode
+    servers: chat.freenode.net:6667
+    channels: "#freenode"
+  
