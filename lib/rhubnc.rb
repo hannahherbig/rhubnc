@@ -121,24 +121,24 @@ class Bouncer
         trap(:TTOU)  { :SIG_IGN }
         trap(:TSTP)  { :SIG_IGN }
 
-        # Load configuration file - XXX
-        #begin
-        #    @@config = YAML.load_file('etc/config.yml')
-        #rescue Exception => e
-        #    puts '----------------------------'
-        #    puts "#{ME}: configure error: #{e}"
-        #    puts '----------------------------'
-        #    abort
-        #else
-        #    @@config = indifferent_hash(@@config)
+        # Load configuration file
+        begin
+            @@config = YAML.load_file('etc/config.yml')
+        rescue Exception => e
+            puts '----------------------------'
+            puts "#{ME}: configure error: #{e}"
+            puts '----------------------------'
+            abort
+        else
+            @@config = indifferent_hash(@@config)
 
-        #    @nickname = @@config[:nickname]
+            @nickname = @@config[:nickname]
 
-        #    if @@config[:die]
-        #        puts "#{ME}: you didn't read your config..."
-        #        exit
-        #    end
-        #end
+            if @@config[:die]
+                puts "#{ME}: you didn't read your config..."
+                exit
+            end
+        end
 
         if @@debug
             puts "#{ME}: warning: debug mode enabled"
