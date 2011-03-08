@@ -5,8 +5,8 @@ users:
   - name: malkier
     servers: irc.malkier.net:6667
     channels:
-      - "#malkier"
-      - "#lobby"
+    - "#malkier"
+    - "#lobby"
   - name: freenode
     servers: chat.freenode.net:6667
     channels: "#freenode"
