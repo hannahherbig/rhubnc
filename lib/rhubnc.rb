@@ -2,15 +2,9 @@
 # rhubnc: rhuidean-based IRC bouncer
 # lib/rhubnc.rb: startup routines, etc
 #
-# Copyright (c) 2003-2010 Eric Will <rakaur@malkier.net>
+# Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
 #
 # encoding: utf-8
-
-# Import required Ruby modules
-%w(logger optparse yaml).each { |m| require m }
-
-# Import required application modules
-#%w().each { |m| require 'rhubnc/' + m }
 
 # Check for rhuidean
 begin
@@ -20,16 +14,20 @@ rescue LoadError
     puts 'rhubnc: this library is required for IRC communication'
     puts 'rhubnc: gem install --remote rhuidean'
     abort
-else
-    require 'rhuidean/stateful_client'
 end
+
+# Import required Ruby modules
+%w(logger openssl optparse yaml).each { |m| require m }
+
+# Import required application modules
+%w(server).each { |m| require 'rhubnc/' + m }
 
 # The main application class
 class Bouncer
 
     ##
     # mixins
-    include Loggable      # Magic logging from rhuidean
+    include Loggable # Magic logging from rhuidean
 
     ##
     # constants
@@ -44,11 +42,17 @@ class Bouncer
 
     VERSION  = "#{V_MAJOR}.#{V_MINOR}.#{V_PATCH}"
 
+    ##
+    # class variables
+
     # Configuration data
     @@config = nil
 
-    # Debug mode?
-    @@debug = false
+    # A list of our servers
+    @@servers = []
+
+    # The OpenSSL context used for STARTTLS
+    @@ssl_context = nil
 
     ##
     # Create a new +Bouncer+ object, which starts and runs the entire
@@ -57,10 +61,6 @@ class Bouncer
     # return:: self
     #
     def initialize
-
-        # Our logger
-        @logger = nil
-
         rhu = Rhuidean::VERSION
 
         puts "#{ME}: version #{VERSION} (rhuidean-#{rhu}) [#{RUBY_PLATFORM}]"
@@ -83,8 +83,10 @@ class Bouncer
 
         # Some defaults for state
         logging  = true
+        debug    = false
         willfork = RUBY_PLATFORM =~ /win32/i ? false : true
         wd       = Dir.getwd
+        @logger  = nil
 
         # Do command-line options
         opts = OptionParser.new
@@ -95,7 +97,7 @@ class Bouncer
         qd = 'Disable regular logging.'
         vd = 'Display version information.'
 
-        opts.on('-d', '--debug',   dd) { @@debug  = true  }
+        opts.on('-d', '--debug',   dd) { debug  = true  }
         opts.on('-h', '--help',    hd) { puts opts; abort }
         opts.on('-n', '--no-fork', nd) { willfork = false }
         opts.on('-q', '--quiet',   qd) { logging  = false }
@@ -109,7 +111,7 @@ class Bouncer
         end
 
         # Interpreter warnings
-        $-w = true if @@debug
+        $-w = true if debug
 
         # Signal handlers
         trap(:INT)   { app_exit }
@@ -132,15 +134,41 @@ class Bouncer
         else
             @@config = indifferent_hash(@@config)
 
-            @nickname = @@config[:nickname]
-
             if @@config[:die]
                 puts "#{ME}: you didn't read your config..."
                 exit
             end
+
+            unless @@config[:listen]
+                puts "#{ME}: configure error: no listeners defined"
+                abort
+            end
         end
 
-        if @@debug
+        # Set up the SSL stuff - XXX
+        #certfile = @@config[:certificate]
+        #keyfile  = @@config[:private_key]
+
+        #begin
+        #    cert = OpenSSL::X509::Certificate.new(File.read(certfile))
+        #    pkey = OpenSSL::PKey::RSA.new(File.read(keyfile))
+        #rescue Exception => e
+        #    puts "#{ME}: configuration error: #{e}"
+        #    abort
+        #else
+        #    ctx      = OpenSSL::SSL::SSLContext.new
+        #    ctx.cert = cert
+        #    ctx.key  = pkey
+
+        #    ctx.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        #    ctx.options     = OpenSSL::SSL::OP_NO_TICKET
+        #    ctx.options    |= OpenSSL::SSL::OP_NO_SSLv2
+        #    ctx.options    |= OpenSSL::SSL::OP_ALL
+
+        #    @@ssl_context = ctx
+        #end
+
+        if debug
             puts "#{ME}: warning: debug mode enabled"
             puts "#{ME}: warning: everything will be logged in the clear!"
         end
@@ -182,7 +210,7 @@ class Bouncer
             [$stdin, $stdout, $stderr].each { |s| s.close }
 
             # Set up logging
-            if logging or @@debug
+            if logging or debug
                 self.logger = Logger.new('var/rhubnc.log', 'weekly')
             end
         else
@@ -190,13 +218,13 @@ class Bouncer
             puts "#{ME}: running in foreground mode from #{Dir.getwd}"
 
             # Set up logging
-            self.logger = Logger.new($stdout) if logging or @@debug
+            self.logger = Logger.new($stdout) if logging or debug
         end
 
-        if @@debug
+        if debug
             log_level = :debug
-        #else
-        #    log_level = @@config[:logging].to_sym
+        else
+            log_level = @@config[:logging].to_sym
         end
 
         self.log_level = log_level if logging
@@ -205,14 +233,25 @@ class Bouncer
         Dir.mkdir('var') unless Dir.exists?('var')
         File.open('var/rhubnc.pid', 'w') { |f| f.puts(Process.pid) }
 
-        # Set up our handlers
-        #set_event_handlers
+        # XXX - timers
+
+        # Start the listeners
+
+        @@config[:listen].each do |hostport|
+            bind_to, port = hostport.split(':')
+
+            @@servers << Server.new do |s|
+                s.bind_to = bind_to
+                s.port    = port
+                s.logger  = @logger if logging
+            end
+        end
 
         # Start your engines...
-        Thread.abort_on_exception = true if @@debug
+        Thread.abort_on_exception = true if debug
 
-        #@@clients.each { |c| c.thread = Thread.new { c.io_loop } }
-        #@@clients.each { |c| c.thread.join }
+        @@servers.each { |s| s.thread = Thread.new { s.io_loop } }
+        @@servers.each { |s| s.thread.join }
 
         # Exiting...
         app_exit
@@ -227,10 +266,6 @@ class Bouncer
 
     def Bouncer.config
         @@config
-    end
-
-    def Bouncer.debug
-        @@debug
     end
 
     #######

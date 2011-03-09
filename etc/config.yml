@@ -1,18 +1,24 @@
+---
+logging: info
+certificate: etc/server.crt
+private_key: etc/server.key
+
+# host:port
 listen:
-  host: 0.0.0.0
-  port: 6667
-  maxconnections: 10
+- *:4010
 
 users:
-- name: example
-  password: password
-  networks:
-  - name: malkier
-    servers: irc.malkier.net:6667
-    channels:
-    - "#malkier"
-    - "#lobby"
-  - name: freenode
-    servers: chat.freenode.net:6667
-    channels: "#freenode"
-  
+- example_user:
+    password: password
+
+    networks:
+    - malkier:
+        servers: irc.malkier.net:6667
+        channels:
+        - "#malkier"
+        - "#lobby"
+
+    - freenode:
+        servers: chat.freenode.net:6667
+        channels:
+        - "#freenode"
