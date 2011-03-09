@@ -20,7 +20,7 @@ end
 %w(logger openssl optparse yaml).each { |m| require m }
 
 # Import required application modules
-%w(server).each { |m| require 'rhubnc/' + m }
+%w(config server).each { |m| require 'rhubnc/' + m }
 
 # The main application class
 class Bouncer
@@ -44,9 +44,6 @@ class Bouncer
 
     ##
     # class variables
-
-    # Configuration data
-    @@config = nil
 
     # A list of our servers
     @@servers = []
@@ -122,28 +119,6 @@ class Bouncer
         trap(:TTIN)  { :SIG_IGN }
         trap(:TTOU)  { :SIG_IGN }
         trap(:TSTP)  { :SIG_IGN }
-
-        # Load configuration file
-        begin
-            @@config = YAML.load_file('etc/config.yml')
-        rescue Exception => e
-            puts '----------------------------'
-            puts "#{ME}: configure error: #{e}"
-            puts '----------------------------'
-            abort
-        else
-            @@config = indifferent_hash(@@config)
-
-            if @@config[:die]
-                puts "#{ME}: you didn't read your config..."
-                exit
-            end
-
-            unless @@config[:listen]
-                puts "#{ME}: configure error: no listeners defined"
-                abort
-            end
-        end
 
         # Set up the SSL stuff - XXX
         #certfile = @@config[:certificate]
@@ -224,7 +199,7 @@ class Bouncer
         if debug
             log_level = :debug
         else
-            log_level = @@config[:logging].to_sym
+            log_level = @@config.logging.to_sym
         end
 
         self.log_level = log_level if logging
@@ -237,12 +212,10 @@ class Bouncer
 
         # Start the listeners
 
-        @@config[:listen].each do |hostport|
-            bind_to, port = hostport.split(':')
-
+        @@config.listeners.each do |listener|
             @@servers << Server.new do |s|
-                s.bind_to = bind_to
-                s.port    = port
+                s.bind_to = listener.bind_to
+                s.port    = listener.port
                 s.logger  = @logger if logging
             end
         end
@@ -258,14 +231,6 @@ class Bouncer
 
         # Return...
         self
-    end
-
-    ######
-    public
-    ######
-
-    def Bouncer.config
-        @@config
     end
 
     #######

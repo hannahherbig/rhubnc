@@ -11,16 +11,28 @@
 $: << File.join(Dir.getwd, 'lib')
 $0 = 'rhubnc'
 
-# Import required application modules
 require 'rhubnc'
 
-# Start a new instance of the application
-begin
-    Bouncer.new
-rescue Exception => err
-    # XXX - eventually put logging and such here.
-    raise
-end
+# This is the configuration. Edit from here down.
+configure do
+  logging :info
 
-exit 0
+  ssl_certificate '/path/to/cert.ssl'
+  ssl_private_key '/path/to/key.ssl'
+
+  listen 4010
+  listen 4011, :host => '0.0.0.0'
+
+  user :rakaur do
+    password "password"
+
+    network :malkier do
+      server "irc.malkier.net", :port => 6667
+    end
+
+    network :freenode do
+      server "irc.freenode.net", :password => :partypants
+    end
+  end
+end
 
