@@ -199,7 +199,7 @@ class Bouncer
         if debug
             log_level = :debug
         else
-            log_level = @@config.logging.to_sym
+            log_level = @@config.log_level.to_sym
         end
 
         self.log_level = log_level if logging

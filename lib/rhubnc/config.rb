@@ -21,17 +21,17 @@ class Bouncer
     def Bouncer.config=(config); @@config = config; end
 
     class Configuration
-        attr_reader :logging, :ssl_certificate, :ssl_private_key, :listeners, 
+        attr_reader :log_level, :ssl_certificate, :ssl_private_key, :listeners, 
                     :users
 
         def initialize(&block)
-            @logging   = :info
+            @log_level = :info
             @listeners = []
             @users     = []
         end
 
         def logging(level)
-            @logging = level.to_s
+            @log_level = level.to_s
         end
 
         def ssl_certificate(certfile)
