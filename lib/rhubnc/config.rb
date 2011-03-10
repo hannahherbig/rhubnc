@@ -21,7 +21,7 @@ class Bouncer
     def Bouncer.config=(config); @@config = config; end
 
     class Configuration
-        attr_reader :log_level, :ssl_certificate, :ssl_private_key, :listeners, 
+        attr_reader :log_level, :ssl_certfile, :ssl_keyfile, :listeners, 
                     :users
 
         def initialize(&block)
@@ -35,11 +35,11 @@ class Bouncer
         end
 
         def ssl_certificate(certfile)
-            @ssl_certificate = certfile.to_s
+            @ssl_certfile = certfile.to_s
         end
 
         def ssl_private_key(keyfile)
-            @ssl_private_key = keyfile.to_s
+            @ssl_keyfile = keyfile.to_s
         end
 
         def listen(port, opts = {})

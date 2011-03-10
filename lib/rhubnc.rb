@@ -237,25 +237,6 @@ class Bouncer
     private
     #######
 
-    # Converts a Hash into a Hash that allows lookup by String or Symbol
-    def indifferent_hash(hash)
-        # Hash.new blocks catch lookup failures
-        hash = Hash.new do |hash, key|
-                   hash[key.to_s] if key.is_a?(Symbol)
-               end.merge(hash)
-
-        # Look for any hashes inside the hash to convert
-        hash.each do |key, value|
-            # Convert this subhash
-            hash[key] = indifferent_hash(value) if value.is_a?(Hash)
-
-            # Arrays could have hashes in them
-            value.each_with_index do |arval, index|
-                hash[key][index] = indifferent_hash(arval) if arval.is_a?(Hash)
-            end if value.is_a?(Array)
-        end
-    end
-
     def app_exit
         @logger.close if @logger
         File.delete('var/rhubnc.pid')
