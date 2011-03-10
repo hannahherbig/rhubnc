@@ -4,7 +4,6 @@
 #
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
 #
-# encoding: utf-8
 
 # Import required Ruby modules
 %w(digest/md5 openssl).each { |m| require m } # XXX - SSL
@@ -17,22 +16,17 @@ class Client
 
     ##
     # instance attributes
-    attr_reader :host, :resource, :socket
+    attr_reader :irc, :socket, :user
 
-    ##
-    # XXX
     def initialize(host, socket)
-        # The hostname our client connected to
-        @connect_host = nil
-
         # Is our socket dead?
         @dead = false
 
         # Our event queue
         @eventq = IRC::EventQueue.new
 
-        # Our hostname
-        @host = host
+        # Our IRC connection
+        @irc = nil
 
         # Our Logger object
         @logger     = nil
