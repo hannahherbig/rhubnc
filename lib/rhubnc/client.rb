@@ -58,6 +58,9 @@ class Client
 
         log(:debug, "new client from #@host")
 
+        # XXX - make this pretty
+        @sendq << "NOTICE AUTH :*** Welcome to the bouncer. Authenticate."
+
         self
     end
 
@@ -67,14 +70,57 @@ class Client
 
     def set_default_handlers
         @eventq.handle(:recvq_ready) { parse }
+        @eventq.handle(:QUIT) { self.dead = true }
+
+        @eventq.handle(:BNC) do |m|
+            next unless m.params
+
+            cmd = "BNC_#{m.params[0].upcase}".to_sym
+            @eventq.post(cmd, m)
+        end
+
+        @eventq.handle(:BNC_AUTH) { |m| do_auth(m) }
     end
 
+    def do_auth(m)
+        username = m.params[1]
+        password = m.params[2]
+
+        unless user = User.find(username)
+            log(:info, "failed auth attempt to unknown user #{username}")
+            self.dead = true
+            return
+        end
+
+        if user.authenticate(password)
+            @user = user
+            log(:info, "#{username} successfully authenticated")
+            @sendq << "NOTICE AUTH :*** You have authenticated as #{username}."
+        else
+            log(:info, "failed auth attempt to #{username}")
+            self.dead = true
+        end
+    end
 
     def parse
-        # XXX gotta write this!
         while line = @recvq.shift
             line.chomp!
             log(:debug,"-> #{line}")
+
+            return if line.empty?
+
+            command = line.split(' ')
+            params  = command[1 .. -1]
+            command = command[0].upcase.to_sym
+
+            unless @eventq.handlers[command]
+                # No handler means we toss it to IRC - XXX
+                return
+            end
+
+            msg = IRC::Message.new(self, line, nil, nil, params)
+
+            @eventq.post(command, msg)
         end
     end
 
@@ -174,7 +220,7 @@ class Client
                 self.dead = true
                 return
             else
-                log(:debug, "< #{line[0 ... -2]}")
+                log(:debug, "<- #{line[0 ... -2]}")
             end
         end
     end

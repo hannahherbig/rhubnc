@@ -54,11 +54,11 @@ class User
     # password:: plaintext password to compare
     # returns:: +true+ or +false+
     #
-    def authorize(password)
-        salt = password[0 ... 2]
+    def authenticate(password)
+        salt = @password[0 ... 2]
         encr = password.crypt(salt)
 
-        password == @password
+        encr == @password
     end
 
     def opterator?

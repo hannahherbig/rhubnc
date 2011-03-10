@@ -99,7 +99,7 @@ configure do
   # the service you might want to set one of these up for yourself.
   #
   user :rakaur, :flags => :operator do
-    password 'STQRNq84U3scA'
+    password 'WXFUd2cPT3u9g'
   end
 end
 
