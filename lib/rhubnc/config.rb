@@ -42,10 +42,10 @@ class Bouncer
             @ssl_keyfile = keyfile.to_s
         end
 
-        def listen(port, opts = {})
+        def listen(port, host = '*')
             listener         = OpenStruct.new
             listener.port    = port.to_i
-            listener.bind_to = opts[:host] || '*'
+            listener.bind_to = host.to_s
 
             @listeners << listener
         end
@@ -80,13 +80,25 @@ class Bouncer
     end
 
     module Network
-        def server(name, opts = {})
+        def server(name, port = 6667, pass = nil)
             self.servers ||= []
 
             serv          = OpenStruct.new
             serv.name     = name.to_s
-            serv.port     = opts[:port] || 6667
-            serv.password = opts[:password] if opts[:password]
+
+            if port.is_a?(Hash)
+                serv.port     = port[:port] || 6667
+                serv.password = port[:password]
+            elsif port.is_a?(Fixnum)
+                serv.port = port
+            end
+
+            if pass.is_a?(Hash)
+                serv.port   ||= pass[:port]
+                serv.password = pass[:password]
+            elsif pass.is_a?(String)
+                serv.password = pass
+            end
 
             self.servers << serv
         end

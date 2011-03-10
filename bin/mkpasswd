@@ -1,0 +1,20 @@
+#!/usr/bin/env ruby
+#
+# rhubnc: rhuidean-based IRC bouncer
+# bin/mkpasswd: generated encrypted passwords
+#
+# Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+#
+
+salt_chars = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+salt       = ''
+salt       = salt_chars[rand(salt_chars.length), 2] until salt.length == 2
+
+print "Enter plaintext password: "
+system('stty -echo')
+plaintext = gets.chomp!
+system('stty echo')
+puts
+
+puts plaintext.crypt(salt)
+

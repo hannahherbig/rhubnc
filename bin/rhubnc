@@ -7,32 +7,99 @@
 #
 # encoding: utf-8
 
+#
+# Do not edit yet!
+#
+
 # Prepare the environment
 $: << File.join(Dir.getwd, 'lib')
 $0 = 'rhubnc'
 
 require 'rhubnc'
 
+#
 # This is the configuration. Edit from here down.
+#
+# HOW TO USE THIS FILE:
+#
+# This file is, strictly speaking, a Ruby script. We've provided
+# methods that allow the configuration to be simple and human-readable.
+# Anything that works in Ruby will technically work here, but we
+# suggest sticking with the basics unless you know what you're doing.
+#
+# Unquoted strings are interpreted as Ruby statements. Numbers do not
+# need to be encapsulted within quotes. If your string is basic alphanumeric
+# you can use a :symbol (prefixing your string with a colon instead of
+# encapsulting it with quotations) as it is less noisy.
+#
 configure do
+
+  # How much logging should we do?
+  # In order of least verbose to most verbose:
+  # none, fatal, error, warning, info, debug
+  #
   logging :info
 
-  ssl_certificate '/path/to/cert.ssl'
-  ssl_private_key '/path/to/key.ssl'
+  # The information we need for TLS/SSL.
+  # If you're like most people you'll need to generate
+  # your own, self-signed certificate rather than pay
+  # an ungodly sum of money to some company. In order to
+  # do this you need to run something along the lines of:
+  #
+  #     openssl req -new -x509 -days 365 -sha1 -newkey rsa:1024 \
+  #                 -nodes -keyout server.key -out server.crt \
+  #                 -subj '/O=Company/OU=Department/CN=xmpp.example.com'
+  #
+  # Use the resulting "server.crt" file for ssl_certificate.
+  # Use the resulting "server.key" file for ssl_private_key.
+  #
+  ssl_certificate '/path/to/server.crt'
+  ssl_private_key '/path/to/server.key'
 
+  # Define ports the bouncer should listen on for incoming
+  # user connections. You may optionally provide an IP/host
+  # to bind to. The default is to bind to all hosts.
+  #
   listen 4010
-  listen 4011, :host => '0.0.0.0'
+  listen 4011, '127.0.0.1'
 
-  user :rakaur do
-    password "password"
+  # Define user accounts. Users cannot see each other, and each
+  # has access only to their own information. Usernames can be any string,
+  # but the simpler the better.
+  #
+  user :andrew do
 
+    # The user's password. These passwords are stored encrypted, and may be
+    # generated using the `mkpasswd` utility included. Alternatively, any
+    # utility that encrypts using DES can be used.
+    #
+    password 'klGDV42JhmAeM'
+
+    # Define the networks this user can connect to.
+    # Network names can be any string, but the simpler the better.
+    #
     network :malkier do
-      server "irc.malkier.net", :port => 6667
-    end
 
-    network :freenode do
-      server "irc.freenode.net", :password => :partypants
+      # Define the servers in this network that we should use.
+      # You may optionally provide a port and password. The various
+      # incantations are:
+      server 'irc.malkier.net'
+      server 'irc.malkier.net', 6667
+      server 'irc.malkier.net', 6667, 'password'
+      server 'irc.malkier.net', :port => 6667, :password => 'password'
+      server 'irc.malkier.net', :password => 'password'
+      server 'irc.malkier.net', 6667, :password => 'password'
     end
+  end # All 'do' blocks must end with 'end'
+
+  # There's a special type of user called an operator. These users
+  # are allowed to see all activity and all information from all users,
+  # and are allowed to change non-user-specific settings. These users
+  # aren't necessary for day-to-day operation, but if you're running
+  # the service you might want to set one of these up for yourself.
+  #
+  user :rakaur, flags => :operator do
+    password 'STQRNq84U3scA'
   end
 end
 
