@@ -50,20 +50,21 @@ class Bouncer
             @listeners << listener
         end
 
-        def user(name, &block)
-            user      = OpenStruct.new
-            user.name = name.to_s
+        def user(name, opts = {}, &block)
+            user       = OpenStruct.new
+            user.name  = name.to_s
+            user.flags = opts[:flags]
 
-            user.extend(User)
+            user.extend(ConfigUser)
             user.instance_eval(&block)
 
             @users << user
         end
     end
 
-    module User
+    module ConfigUser
         def password(password)
-            self.password = password
+            self.passwd = password
         end
 
         def network(name, &block)
@@ -72,14 +73,14 @@ class Bouncer
             net      = OpenStruct.new
             net.name = name.to_s
 
-            net.extend(Network)
+            net.extend(ConfigNetwork)
             net.instance_eval(&block)
 
             self.networks << net
         end
     end
 
-    module Network
+    module ConfigNetwork
         def server(name, port = 6667, pass = nil)
             self.servers ||= []
 

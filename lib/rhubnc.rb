@@ -20,7 +20,7 @@ end
 %w(logger openssl optparse yaml).each { |m| require m }
 
 # Import required application modules
-%w(config server).each { |m| require 'rhubnc/' + m }
+%w(config server user).each { |m| require 'rhubnc/' + m }
 
 # The main application class
 class Bouncer
@@ -210,8 +210,12 @@ class Bouncer
 
         # XXX - timers
 
-        # Start the listeners
+        # Create User objects
+        @@config.users.each do |user|
+            User.new(user.name, user.passwd, user.flags, user.networks)
+        end
 
+        # Start the listeners
         @@config.listeners.each do |listener|
             @@servers << Server.new do |s|
                 s.bind_to = listener.bind_to

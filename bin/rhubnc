@@ -98,7 +98,7 @@ configure do
   # aren't necessary for day-to-day operation, but if you're running
   # the service you might want to set one of these up for yourself.
   #
-  user :rakaur, flags => :operator do
+  user :rakaur, :flags => :operator do
     password 'STQRNq84U3scA'
   end
 end

@@ -6,9 +6,13 @@
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
 #
 
-salt_chars = "./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+SALT_CHARS = '0123456789' +
+             'ABCDEFGHIJKLMNOPQRSTUVWXYZ' +
+             'abcdefghijklmnopqrstuvwxyz' +
+             './'
+
 salt       = ''
-salt       = salt_chars[rand(salt_chars.length), 2] until salt.length == 2
+salt       = SALT_CHARS[rand(SALT_CHARS.length), 2] until salt.length == 2
 
 print "Enter plaintext password: "
 system('stty -echo')
