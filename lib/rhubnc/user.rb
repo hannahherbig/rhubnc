@@ -72,8 +72,8 @@ class User
     # returns:: encrypted password
     #
     def password=(password)
-       salt = ''
-       salt = SALT_CHARS[rand(SALT_CHARS.length), 2] until salt.length == 2
+       salt  = SALT_CHARS[rand(SALT_CHARS.length)]
+       salt += SALT_CHARS[rand(SALT_CHARS.length)]
 
        @password = password.crypt(salt)
     end

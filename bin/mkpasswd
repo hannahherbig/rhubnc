@@ -11,7 +11,8 @@ SALT_CHARS = '0123456789' +
              'abcdefghijklmnopqrstuvwxyz' +
              './'
 
-salt       = SALT_CHARS.split('').sample(2).join
+salt  = SALT_CHARS[rand(SALT_CHARS.length)]
+salt += SALT_CHARS[rand(SALT_CHARS.length)]
 
 print "Enter plaintext password: "
 system('stty -echo')
