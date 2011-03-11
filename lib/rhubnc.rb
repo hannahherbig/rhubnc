@@ -93,7 +93,7 @@ class Bouncer
         qd = 'Disable regular logging.'
         vd = 'Display version information.'
 
-        opts.on('-d', '--debug',   dd) { debug  = true  }
+        opts.on('-d', '--debug',   dd) { debug  = true    }
         opts.on('-h', '--help',    hd) { puts opts; abort }
         opts.on('-n', '--no-fork', nd) { willfork = false }
         opts.on('-q', '--quiet',   qd) { logging  = false }

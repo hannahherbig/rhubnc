@@ -40,9 +40,9 @@ class User
         @@users << self
     end
 
-    #######
+    ######
     public
-    #######
+    ######
 
     def User.find(name)
         @@users.find { |u| u.name == name }
@@ -61,7 +61,7 @@ class User
         encr == @password
     end
 
-    def opterator?
+    def operator?
         @flags.include?(:operator)
     end
 
