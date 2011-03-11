@@ -62,6 +62,9 @@ configure do
   listen 4010
   listen 4011, '127.0.0.1'
 
+  # This is here to make sure you're paying attention.
+  #abort "You didn't configure your bouncer!"
+
   # Define user accounts. Users cannot see each other, and each
   # has access only to their own information. Usernames can be any string,
   # but the simpler the better.
