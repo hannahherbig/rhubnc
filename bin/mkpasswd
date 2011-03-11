@@ -11,8 +11,7 @@ SALT_CHARS = '0123456789' +
              'abcdefghijklmnopqrstuvwxyz' +
              './'
 
-salt       = ''
-salt       = SALT_CHARS[rand(SALT_CHARS.length), 2] until salt.length == 2
+salt       = SALT_CHARS.split('').sample(2).join
 
 print "Enter plaintext password: "
 system('stty -echo')
