@@ -38,6 +38,9 @@ class Client
         # Data waiting to be sent
         @sendq = []
 
+        # Our hostname
+        @host = host
+
         # Our socket
         @socket = socket
 
