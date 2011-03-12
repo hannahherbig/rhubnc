@@ -69,19 +69,11 @@ class Client
         @eventq.handle(:recvq_ready) { parse }
         @eventq.handle(:QUIT) { self.dead = true }
 
-        @eventq.handle(:BNC) do |m|
-            next unless m.params
-
-            cmd = "BNC_#{m.params[0].upcase}".to_sym
-            @eventq.post(cmd, m)
-        end
-
-        @eventq.handle(:BNC_AUTH) { |m| do_auth(m) }
+        @eventq.handle(:PASS) { |m| do_auth(m) }
     end
 
     def do_auth(m)
-        username = m.params[1]
-        password = m.params[2]
+        username, password, network = m.params[0].split(':')
 
         unless user = User.find(username)
             log(:info, "failed auth attempt to unknown user #{username}")
