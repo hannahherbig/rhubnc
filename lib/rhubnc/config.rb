@@ -10,7 +10,7 @@ require 'ostruct'
 def configure(&block)
     Bouncer.config = Bouncer::Configuration.new
     Bouncer.config.instance_eval(&block)
-    Bouncer.new 
+    Bouncer.new
 end
 
 class Bouncer
@@ -20,7 +20,7 @@ class Bouncer
     def Bouncer.config=(config); @@config = config; end
 
     class Configuration
-        attr_reader :log_level, :ssl_certfile, :ssl_keyfile, :listeners, 
+        attr_reader :log_level, :ssl_certfile, :ssl_keyfile, :listeners,
                     :users
 
         def initialize(&block)

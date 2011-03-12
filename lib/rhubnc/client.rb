@@ -153,6 +153,10 @@ class Client
         @dead
     end
 
+    def authenticated?
+        @user
+    end
+
     #
     # Called when we're ready to read.
     # ---
