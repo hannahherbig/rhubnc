@@ -4,6 +4,7 @@
 # bin/mkpasswd: generated encrypted passwords
 #
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+# Copyright (c) 2011 Andrew Herbig <goforit7arh@gmail.com>
 #
 
 SALT_CHARS = '0123456789' +

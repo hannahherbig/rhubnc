@@ -3,6 +3,7 @@
 # lib/rhubnc/config.rb: configuration DSL
 #
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+# Copyright (c) 2011 Andrew Herbig <goforit7arh@gmail.com>
 #
 
 require 'ostruct'

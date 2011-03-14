@@ -3,6 +3,7 @@
 # lib/rhubnc/server.rb: acts as a TCP server
 #
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+# Copyright (c) 2011 Andrew Herbig <goforit7arh@gmail.com>
 #
 
 # Import required Ruby modules

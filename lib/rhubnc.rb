@@ -3,6 +3,7 @@
 # lib/rhubnc.rb: startup routines, etc
 #
 # Copyright (c) 2003-2011 Eric Will <rakaur@malkier.net>
+# Copyright (c) 2011 Andrew Herbig <goforit7arh@gmail.com>
 #
 
 # Check for rhuidean
